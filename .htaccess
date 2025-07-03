@@ -20,3 +20,15 @@
     Order allow,deny
     Deny from all
 </Files>
+
+Options -Indexes
+
+<FilesMatch "^(db|config)\\.php$">
+  Order deny,allow
+  Deny from all
+</FilesMatch>
+
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
