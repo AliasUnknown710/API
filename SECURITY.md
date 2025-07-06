@@ -15,7 +15,7 @@ We take security vulnerabilities seriously. If you discover a security vulnerabi
 ### How to Report
 
 1. **Do NOT open a public issue** for security vulnerabilities
-2. Email us directly at: [INSERT_SECURITY_EMAIL]
+2. Email us directly at: admin@responder.infosecbyalex.com
 3. Include the following information:
    - Description of the vulnerability
    - Steps to reproduce
