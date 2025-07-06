@@ -16,19 +16,64 @@
   Require ip 131.0.72.0/22
 </RequireAll>
 
-<Files "db.php">
+# Protect sensitive files
+<Files ".env">
     Order allow,deny
     Deny from all
 </Files>
 
+<Files "requirements.txt">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Disable directory browsing
 Options -Indexes
 
-<FilesMatch "^(db|config)\\.php$">
-  Order deny,allow
-  Deny from all
-</FilesMatch>
-
+# Force HTTPS
 RewriteEngine On
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Enable CGI execution in cgi-bin directory
+<Directory "cgi-bin">
+    Options +ExecCGI
+    AddHandler cgi-script .py
+    DirectoryIndex disabled
+    # Allow CGI scripts to run
+    Order allow,deny
+    Allow from all
+</Directory>
+
+# Security headers
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options DENY
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+# CORS headers for CGI scripts only
+<Directory "cgi-bin">
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+</Directory>
+
+# Handle preflight OPTIONS requests for CGI scripts
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteCond %{REQUEST_URI} ^/cgi-bin/
+RewriteRule ^(.*)$ $1 [R=200,L]
+
+# Prevent access to Python source files outside cgi-bin
+<FilesMatch "\.py$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# But allow Python files in cgi-bin
+<Directory "cgi-bin">
+    <FilesMatch "\.py$">
+        Order allow,deny
+        Allow from all
+    </FilesMatch>
+</Directory>
 
